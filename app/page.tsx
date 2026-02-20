@@ -120,7 +120,7 @@ const AGENTS = {
 }
 
 const SCHEDULE_IDS = {
-  EMAIL_SCANNER: '699858b8399dfadeac37cbe6',
+  EMAIL_SCANNER: '69985dc3399dfadeac37cc66',
   MORNING_DIGEST: '699858b8399dfadeac37cbe7',
 }
 
@@ -719,12 +719,12 @@ export default function Page() {
   // ─── Scan Now ──────────────────────────────────────────────────────────────
   const handleScanNow = async () => {
     setIsScanning(true)
-    setScanStatus('Scanning Gmail for Lyzr GPT emails...')
+    setScanStatus('Scanning Gmail for Lyzr GPT / LyzrGPT / Lizer GPT emails...')
     setActiveAgentId(AGENTS.EMAIL_SCANNER.id)
 
     try {
       const scanResult = await callAIAgent(
-        'Scan Gmail for all emails containing "Lyzr GPT" or "Lizer GPT" keywords. Extract demo call details including company name, meeting time, attendees, calendar info, and generate contextual notes.',
+        'Scan Gmail for all emails containing "Lyzr GPT", "LyzrGPT", or "Lizer GPT" keywords (use search query: Lyzr GPT OR LyzrGPT OR Lizer GPT). Extract demo call details including company name, meeting time, attendees, calendar info, and generate contextual notes.',
         AGENTS.EMAIL_SCANNER.id
       )
 
