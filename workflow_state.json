@@ -1,0 +1,130 @@
+{
+  "workflow_name": "Demo Call Tracking Pipeline",
+  "workflow_description": "Automated pipeline that scans Gmail for demo call emails, enriches with company research, and sends daily digest summaries",
+  "created_at": "2026-02-20T12:51:00Z",
+  "agents": {
+    "email_scanner": {
+      "agent_id": "6998587fe5f0636eb7056506",
+      "name": "Email Scanner Agent",
+      "description": "Scans Gmail every hour for emails containing 'Lyzr GPT' or 'Lizer GPT,' extracts demo call details including company name, meeting time, attendees, calendar invites, and contextual notes from email threads",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.2,
+      "top_p": 1,
+      "type": "independent",
+      "tools": ["GMAIL_FETCH_EMAILS"],
+      "managed_agents": [],
+      "capabilities": ["text", "tool_calling"],
+      "response_schema_file": "response_schemas/email_scanner_agent_response.json"
+    },
+    "data_extraction": {
+      "agent_id": "6998587f92ed7d63ef1029c0",
+      "name": "Data Extraction Agent",
+      "description": "Parses raw email content into structured call records: company name, meeting datetime (converted to IST), attendee list, meeting platform, and AI-generated contextual notes",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.2,
+      "top_p": 1,
+      "type": "sub_agent",
+      "parent_agent": "699858aa9cb8e41088ffb070",
+      "tools": [],
+      "managed_agents": [],
+      "capabilities": ["text"],
+      "response_schema_file": "response_schemas/data_extraction_agent_response.json"
+    },
+    "company_research": {
+      "agent_id": "6998587f287fc1efe03967c9",
+      "name": "Company Research Agent",
+      "description": "Researches each company via web to determine employee count, estimated revenue, company size tier, industry, and assigns priority score (High/Medium/Low) based on company size and revenue",
+      "provider": "perplexity",
+      "model": "sonar-pro",
+      "temperature": 0.2,
+      "top_p": 1,
+      "type": "sub_agent",
+      "parent_agent": "699858aa9cb8e41088ffb070",
+      "tools": [],
+      "managed_agents": [],
+      "capabilities": ["text", "web_search"],
+      "response_schema_file": "response_schemas/company_research_agent_response.json"
+    },
+    "enrichment_coordinator": {
+      "agent_id": "699858aa9cb8e41088ffb070",
+      "name": "Enrichment Coordinator",
+      "description": "Coordinates the structuring of extracted email data and company research, aggregates enriched call records with priority scoring",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.3,
+      "top_p": 1,
+      "type": "manager",
+      "tools": [],
+      "managed_agents": [
+        "6998587f92ed7d63ef1029c0",
+        "6998587f287fc1efe03967c9"
+      ],
+      "capabilities": ["text", "manager"],
+      "response_schema_file": "response_schemas/enrichment_coordinator_response.json"
+    },
+    "morning_digest": {
+      "agent_id": "699858ab7663cf0f495cfd32",
+      "name": "Morning Digest Agent",
+      "description": "Compiles all new or updated demo calls from the past 24 hours into a formatted summary email and sends it via Gmail every morning at 8AM IST, highlighting new additions, priority changes, and today's upcoming calls",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.3,
+      "top_p": 1,
+      "type": "independent",
+      "tools": ["GMAIL_SEND_EMAIL"],
+      "managed_agents": [],
+      "capabilities": ["text", "tool_calling"],
+      "response_schema_file": "response_schemas/morning_digest_agent_response.json"
+    }
+  },
+  "schedules": {
+    "email_scanner_hourly": {
+      "schedule_id": "699858b8399dfadeac37cbe6",
+      "agent_id": "6998587fe5f0636eb7056506",
+      "agent_name": "Email Scanner Agent",
+      "cron_expression": "0 * * * *",
+      "description": "Every hour on the hour",
+      "timezone": "Asia/Kolkata",
+      "is_active": true,
+      "next_run_time": "2026-02-20T19:00:00+05:30",
+      "max_retries": 3,
+      "retry_delay": 300,
+      "message": "Scan Gmail for all emails containing 'Lyzr GPT' or 'Lizer GPT' keywords. Extract demo call details including company name, meeting time, attendees, calendar info, and generate contextual notes from email threads. Return all newly found demo calls."
+    },
+    "morning_digest_daily": {
+      "schedule_id": "699858b8399dfadeac37cbe7",
+      "agent_id": "699858ab7663cf0f495cfd32",
+      "agent_name": "Morning Digest Agent",
+      "cron_expression": "0 8 * * *",
+      "description": "Daily at 8:00 AM IST",
+      "timezone": "Asia/Kolkata",
+      "is_active": true,
+      "next_run_time": "2026-02-21T08:00:00+05:30",
+      "max_retries": 3,
+      "retry_delay": 300,
+      "message": "Compile all new and updated demo calls from the past 24 hours. Create a formatted HTML summary email including: new calls added, updated calls, today's upcoming schedule, and priority highlights. Send the digest email via Gmail."
+    }
+  },
+  "workflow_topology": {
+    "flow": "input_node -> email_scanner -> enrichment_coordinator -> [data_extraction, company_research] -> morning_digest -> output_node",
+    "nodes": [
+      {"id": "input_node", "type": "Input", "label": "User Query / Scheduled Trigger"},
+      {"id": "email_scanner", "type": "Agent", "label": "Email Scanner Agent", "agent_id": "6998587fe5f0636eb7056506"},
+      {"id": "enrichment_coordinator", "type": "Agent", "label": "Enrichment Coordinator", "agent_id": "699858aa9cb8e41088ffb070"},
+      {"id": "data_extraction", "type": "Agent", "label": "Data Extraction Agent", "agent_id": "6998587f92ed7d63ef1029c0"},
+      {"id": "company_research", "type": "Agent", "label": "Company Research Agent", "agent_id": "6998587f287fc1efe03967c9"},
+      {"id": "morning_digest", "type": "Agent", "label": "Morning Digest Agent", "agent_id": "699858ab7663cf0f495cfd32"},
+      {"id": "output_node", "type": "Output", "label": "Dashboard Output"}
+    ],
+    "edges": [
+      {"source": "input_node", "target": "email_scanner"},
+      {"source": "email_scanner", "target": "enrichment_coordinator"},
+      {"source": "enrichment_coordinator", "target": "data_extraction"},
+      {"source": "enrichment_coordinator", "target": "company_research"},
+      {"source": "enrichment_coordinator", "target": "morning_digest"},
+      {"source": "morning_digest", "target": "output_node"}
+    ]
+  }
+}

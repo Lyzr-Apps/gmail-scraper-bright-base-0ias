@@ -1,0 +1,49 @@
+{
+  "agent_name": "Company Research Agent",
+  "agent_id": "6998587f287fc1efe03967c9",
+  "description": "Researches each company via web to determine employee count, estimated revenue, company size tier, industry, and assigns priority score (High/Medium/Low) based on company size and revenue",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "has_module_outputs": false,
+  "response_schema": {
+    "companies": [
+      {
+        "company_name": "string",
+        "employee_count": "string",
+        "estimated_revenue": "string",
+        "company_size_tier": "string",
+        "industry": "string",
+        "priority": "string",
+        "headquarters": "string",
+        "website": "string",
+        "research_confidence": "number",
+        "research_notes": "string"
+      }
+    ],
+    "total_researched": "number",
+    "high_priority_count": "number",
+    "medium_priority_count": "number",
+    "low_priority_count": "number"
+  },
+  "example_response": {
+    "companies": [
+      {
+        "company_name": "Acme Corp",
+        "employee_count": "500-1000",
+        "estimated_revenue": "$75M",
+        "company_size_tier": "Mid-Market",
+        "industry": "Technology",
+        "priority": "Medium",
+        "headquarters": "San Francisco, CA",
+        "website": "https://acme.com",
+        "research_confidence": 80,
+        "research_notes": "Mid-sized tech company focused on enterprise solutions."
+      }
+    ],
+    "total_researched": 1,
+    "high_priority_count": 0,
+    "medium_priority_count": 1,
+    "low_priority_count": 0
+  }
+}

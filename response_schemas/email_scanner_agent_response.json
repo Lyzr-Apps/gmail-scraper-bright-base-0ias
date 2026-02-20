@@ -1,0 +1,65 @@
+{
+  "agent_name": "Email Scanner Agent",
+  "agent_id": "6998587fe5f0636eb7056506",
+  "description": "Scans Gmail every hour for emails containing 'Lyzr GPT' or 'Lizer GPT,' extracts demo call details including company name, meeting time, attendees, calendar invites, and contextual notes from email threads",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "has_module_outputs": false,
+  "response_schema": {
+    "scan_timestamp": "string",
+    "emails_found": "number",
+    "new_emails": "number",
+    "demo_calls": [
+      {
+        "email_id": "string",
+        "company_name": "string",
+        "call_datetime_ist": "string",
+        "original_timezone": "string",
+        "attendees": [
+          {
+            "name": "string",
+            "email": "string",
+            "role": "string"
+          }
+        ],
+        "meeting_platform": "string",
+        "meeting_link": "string",
+        "ai_notes": "string",
+        "is_new": "boolean",
+        "email_subject": "string",
+        "email_date": "string"
+      }
+    ],
+    "scan_status": "string",
+    "next_scan_time": "string"
+  },
+  "example_response": {
+    "scan_timestamp": "2026-02-20T13:00:00Z",
+    "emails_found": 5,
+    "new_emails": 2,
+    "demo_calls": [
+      {
+        "email_id": "msg_001",
+        "company_name": "Acme Corp",
+        "call_datetime_ist": "2026-02-21T14:30:00+05:30",
+        "original_timezone": "America/New_York",
+        "attendees": [
+          {
+            "name": "John Smith",
+            "email": "john@acme.com",
+            "role": "organizer"
+          }
+        ],
+        "meeting_platform": "Zoom",
+        "meeting_link": "https://zoom.us/j/123456",
+        "ai_notes": "Interested in Lyzr GPT for customer support automation. 500+ employee company.",
+        "is_new": true,
+        "email_subject": "Re: Lyzr GPT Demo - Acme Corp",
+        "email_date": "2026-02-20T12:00:00Z"
+      }
+    ],
+    "scan_status": "success",
+    "next_scan_time": "2026-02-20T14:00:00+05:30"
+  }
+}

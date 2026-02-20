@@ -1,0 +1,104 @@
+{
+  "agent_name": "Enrichment Coordinator",
+  "agent_id": "699858aa9cb8e41088ffb070",
+  "description": "Coordinates the structuring of extracted email data and company research, aggregates enriched call records with priority scoring",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "enriched_calls": [
+      {
+        "call_id": "string",
+        "company_name": "string",
+        "call_datetime_ist": "string",
+        "call_date": "string",
+        "call_time": "string",
+        "original_timezone": "string",
+        "local_time": "string",
+        "attendees": [
+          {
+            "name": "string",
+            "email": "string",
+            "role": "string"
+          }
+        ],
+        "meeting_platform": "string",
+        "meeting_link": "string",
+        "ai_notes": "string",
+        "key_topics": [
+          "string"
+        ],
+        "action_items": [
+          "string"
+        ],
+        "email_thread_summary": "string",
+        "company_size_tier": "string",
+        "employee_count": "string",
+        "estimated_revenue": "string",
+        "industry": "string",
+        "priority": "string",
+        "headquarters": "string",
+        "company_website": "string",
+        "is_new": "boolean",
+        "enrichment_confidence": "number"
+      }
+    ],
+    "summary": {
+      "total_calls": "number",
+      "new_calls": "number",
+      "high_priority": "number",
+      "medium_priority": "number",
+      "low_priority": "number",
+      "todays_calls": "number",
+      "pipeline_status": "string"
+    }
+  },
+  "example_response": {
+    "enriched_calls": [
+      {
+        "call_id": "sample string",
+        "company_name": "sample string",
+        "call_datetime_ist": "sample string",
+        "call_date": "sample string",
+        "call_time": "sample string",
+        "original_timezone": "sample string",
+        "local_time": "sample string",
+        "attendees": [
+          {
+            "name": "sample string",
+            "email": "sample string",
+            "role": "sample string"
+          }
+        ],
+        "meeting_platform": "sample string",
+        "meeting_link": "sample string",
+        "ai_notes": "sample string",
+        "key_topics": [
+          "sample string"
+        ],
+        "action_items": [
+          "sample string"
+        ],
+        "email_thread_summary": "sample string",
+        "company_size_tier": "sample string",
+        "employee_count": "sample string",
+        "estimated_revenue": "sample string",
+        "industry": "sample string",
+        "priority": "sample string",
+        "headquarters": "sample string",
+        "company_website": "sample string",
+        "is_new": false,
+        "enrichment_confidence": 0
+      }
+    ],
+    "summary": {
+      "total_calls": 0,
+      "new_calls": 0,
+      "high_priority": 0,
+      "medium_priority": 0,
+      "low_priority": 0,
+      "todays_calls": 0,
+      "pipeline_status": "sample string"
+    }
+  }
+}

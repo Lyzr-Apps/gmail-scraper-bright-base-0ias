@@ -1,0 +1,75 @@
+{
+  "agent_name": "Data Extraction Agent",
+  "agent_id": "6998587f92ed7d63ef1029c0",
+  "description": "Parses raw email content into structured call records: company name, meeting datetime (converted to IST), attendee list, meeting platform, and AI-generated contextual notes",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "has_module_outputs": false,
+  "response_schema": {
+    "structured_calls": [
+      {
+        "call_id": "string",
+        "company_name": "string",
+        "company_name_full": "string",
+        "call_datetime_ist": "string",
+        "call_date": "string",
+        "call_time": "string",
+        "original_timezone": "string",
+        "local_time": "string",
+        "attendees": [
+          {
+            "name": "string",
+            "email": "string",
+            "role": "string",
+            "company": "string"
+          }
+        ],
+        "meeting_platform": "string",
+        "meeting_link": "string",
+        "ai_notes": "string",
+        "key_topics": ["string"],
+        "action_items": ["string"],
+        "email_thread_summary": "string",
+        "is_new": "boolean",
+        "data_quality_score": "number"
+      }
+    ],
+    "total_records": "number",
+    "duplicates_removed": "number",
+    "quality_issues": ["string"]
+  },
+  "example_response": {
+    "structured_calls": [
+      {
+        "call_id": "call_001",
+        "company_name": "Acme Corp",
+        "company_name_full": "Acme Corporation Inc.",
+        "call_datetime_ist": "2026-02-21T14:30:00+05:30",
+        "call_date": "2026-02-21",
+        "call_time": "14:30 IST",
+        "original_timezone": "America/New_York",
+        "local_time": "04:00 AM EST",
+        "attendees": [
+          {
+            "name": "John Smith",
+            "email": "john@acme.com",
+            "role": "organizer",
+            "company": "Acme Corp"
+          }
+        ],
+        "meeting_platform": "Zoom",
+        "meeting_link": "https://zoom.us/j/123456",
+        "ai_notes": "Interested in Lyzr GPT for customer support automation.",
+        "key_topics": ["customer support", "automation"],
+        "action_items": ["Prepare demo", "Send pricing"],
+        "email_thread_summary": "Initial outreach followed by scheduling confirmation.",
+        "is_new": true,
+        "data_quality_score": 85
+      }
+    ],
+    "total_records": 1,
+    "duplicates_removed": 0,
+    "quality_issues": []
+  }
+}

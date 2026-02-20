@@ -1,0 +1,66 @@
+{
+  "agent_name": "Morning Digest Agent",
+  "agent_id": "699858ab7663cf0f495cfd32",
+  "description": "Compiles all new or updated demo calls from the past 24 hours into a formatted summary email and sends it via Gmail every morning at 8AM IST, highlighting new additions, priority changes, and today's upcoming calls",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "digest_date": "string",
+    "email_sent": "boolean",
+    "recipient": "string",
+    "summary": {
+      "new_calls_count": "number",
+      "updated_calls_count": "number",
+      "todays_calls_count": "number",
+      "high_priority_alerts": "number"
+    },
+    "new_calls": [
+      {
+        "company_name": "string",
+        "call_datetime": "string",
+        "priority": "string",
+        "attendee_count": "number"
+      }
+    ],
+    "todays_schedule": [
+      {
+        "company_name": "string",
+        "call_time": "string",
+        "meeting_platform": "string",
+        "priority": "string"
+      }
+    ],
+    "digest_status": "string",
+    "email_content_preview": "string"
+  },
+  "example_response": {
+    "digest_date": "Date of the digest",
+    "email_sent": false,
+    "recipient": "sample string",
+    "summary": {
+      "new_calls_count": 0,
+      "updated_calls_count": 0,
+      "todays_calls_count": 0,
+      "high_priority_alerts": 0
+    },
+    "new_calls": [
+      {
+        "company_name": "sample string",
+        "call_datetime": "sample string",
+        "priority": "sample string",
+        "attendee_count": 0
+      }
+    ],
+    "todays_schedule": [
+      {
+        "company_name": "sample string",
+        "call_time": "sample string",
+        "meeting_platform": "sample string",
+        "priority": "sample string"
+      }
+    ],
+    "digest_status": "sample string",
+    "email_content_preview": "First 200 chars of the email body"
+  }
+}
