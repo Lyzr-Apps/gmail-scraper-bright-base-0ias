@@ -81,7 +81,7 @@
   },
   "schedules": {
     "email_scanner_hourly": {
-      "schedule_id": "69985dc3399dfadeac37cc66",
+      "schedule_id": "69985fd2399dfadeac37cc96",
       "agent_id": "6998587fe5f0636eb7056506",
       "agent_name": "Email Scanner Agent",
       "cron_expression": "0 * * * *",
@@ -91,7 +91,7 @@
       "next_run_time": "2026-02-20T19:00:00+05:30",
       "max_retries": 3,
       "retry_delay": 300,
-      "message": "Scan Gmail for all emails containing 'Lyzr GPT', 'LyzrGPT', or 'Lizer GPT' keywords (use search query: Lyzr GPT OR LyzrGPT OR Lizer GPT). Extract demo call details including company name, meeting time, attendees, calendar info, and generate contextual notes from email threads. Return all newly found demo calls."
+      "message": "Fetch my recent 50 emails from Gmail using GMAIL_FETCH_EMAILS with max_results 50 (no query filter). Then analyze every email to find any related to Lyzr GPT demos, LyzrGPT, Lizer GPT, demo calls, demo meetings, product demos, or scheduled calls. Extract details for each match."
     },
     "morning_digest_daily": {
       "schedule_id": "699858b8399dfadeac37cbe7",

@@ -120,7 +120,7 @@ const AGENTS = {
 }
 
 const SCHEDULE_IDS = {
-  EMAIL_SCANNER: '69985dc3399dfadeac37cc66',
+  EMAIL_SCANNER: '69985fd2399dfadeac37cc96',
   MORNING_DIGEST: '699858b8399dfadeac37cbe7',
 }
 
@@ -757,12 +757,12 @@ export default function Page() {
 
   const handleScanNow = async () => {
     setIsScanning(true)
-    setScanStatus('Scanning Gmail for Lyzr GPT / LyzrGPT / Lizer GPT emails...')
+    setScanStatus('Fetching recent Gmail emails and scanning for demo calls...')
     setActiveAgentId(AGENTS.EMAIL_SCANNER.id)
 
     try {
       const scanResult = await callAIAgent(
-        'Use the GMAIL_FETCH_EMAILS tool to fetch emails with query "Lyzr GPT OR LyzrGPT OR Lizer GPT" and max_results 50. If 0 results, retry with query "lyzr" and max_results 50. Scan all fetched emails for demo call mentions. Extract company name, meeting time, attendees, calendar info, meeting links, and generate contextual notes for each match.',
+        'Fetch my recent 50 emails from Gmail using GMAIL_FETCH_EMAILS with max_results 50 (no query filter). Then analyze every email to find any related to Lyzr GPT demos, LyzrGPT, Lizer GPT, demo calls, demo meetings, product demos, or scheduled calls. Include any email that mentions lyzr, demo, GPT, or scheduled meetings. Extract company name, meeting time, attendees, calendar info, meeting links, and AI notes for each match.',
         AGENTS.EMAIL_SCANNER.id
       )
 
@@ -787,7 +787,7 @@ export default function Page() {
       console.log('[DemoTracker] Parsed:', { emailsFound, scannerCallsCount: scannerCalls.length })
 
       if (emailsFound === 0 && scannerCalls.length === 0) {
-        setScanStatus('Scan complete: No matching emails found in Gmail. Ensure your Gmail has emails containing "Lyzr GPT", "LyzrGPT", or "Lizer GPT".')
+        setScanStatus(`Scan complete: Checked ${emailsFound > 0 ? emailsFound : 'recent'} emails but found no demo-related conversations. Try again or check if Gmail OAuth is properly connected.`)
         setLastScanTime(new Date().toISOString())
         setCountdown(3600)
         setIsScanning(false)
