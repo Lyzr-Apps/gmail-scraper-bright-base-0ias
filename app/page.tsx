@@ -717,13 +717,16 @@ export default function Page() {
   }
 
   // ─── Scan Now ──────────────────────────────────────────────────────────────
-  // Helper: deeply search an object for a key, returns first match
-  const deepFind = (obj: any, key: string): any => {
-    if (!obj || typeof obj !== 'object') return undefined
+  // Helper: deeply search an object for a key, returns first match (depth-limited)
+  const deepFind = (obj: any, key: string, depth: number = 0): any => {
+    if (depth > 8 || !obj || typeof obj !== 'object') return undefined
+    if (Array.isArray(obj)) return undefined
     if (key in obj) return obj[key]
     for (const k of Object.keys(obj)) {
-      const found = deepFind(obj[k], key)
-      if (found !== undefined) return found
+      if (obj[k] && typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
+        const found = deepFind(obj[k], key, depth + 1)
+        if (found !== undefined) return found
+      }
     }
     return undefined
   }
