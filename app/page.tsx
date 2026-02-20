@@ -724,7 +724,7 @@ export default function Page() {
 
     try {
       const scanResult = await callAIAgent(
-        'Scan Gmail for all emails containing "Lyzr GPT", "LyzrGPT", or "Lizer GPT" keywords (use search query: Lyzr GPT OR LyzrGPT OR Lizer GPT). Extract demo call details including company name, meeting time, attendees, calendar info, and generate contextual notes.',
+        'Use the GMAIL_FETCH_EMAILS tool to fetch emails with query "Lyzr GPT OR LyzrGPT OR Lizer GPT" and max_results 50. If 0 results, retry with query "lyzr" and max_results 50. Scan all fetched emails for demo call mentions. Extract company name, meeting time, attendees, calendar info, meeting links, and generate contextual notes for each match.',
         AGENTS.EMAIL_SCANNER.id
       )
 
@@ -735,30 +735,122 @@ export default function Page() {
         return
       }
 
-      const scanData = scanResult?.response?.result
-      const emailsFound = scanData?.emails_found ?? 0
-      setScanStatus(`Found ${emailsFound} emails. Enriching data...`)
+      // Robust parsing: check multiple possible response paths
+      const rawResult = scanResult?.response?.result
+      const scanData = rawResult && typeof rawResult === 'object' ? rawResult : {}
+
+      // Try to find demo_calls in various possible locations
+      let demoCalls_raw = scanData?.demo_calls
+      if (!Array.isArray(demoCalls_raw)) {
+        demoCalls_raw = scanData?.data?.demo_calls
+      }
+      if (!Array.isArray(demoCalls_raw)) {
+        demoCalls_raw = scanData?.result?.demo_calls
+      }
+
+      const emailsFound = scanData?.emails_found ?? scanData?.data?.emails_found ?? (Array.isArray(demoCalls_raw) ? demoCalls_raw.length : 0)
+
+      // If scanner found demo calls directly, we can use them
+      // But still pass through enrichment for company research
+      if (emailsFound === 0 && (!Array.isArray(demoCalls_raw) || demoCalls_raw.length === 0)) {
+        setScanStatus('Scan complete: No matching emails found in Gmail. Make sure your Gmail has emails containing "Lyzr GPT", "LyzrGPT", or "Lizer GPT".')
+        setLastScanTime(new Date().toISOString())
+        setCountdown(3600)
+        setIsScanning(false)
+        setActiveAgentId(null)
+        return
+      }
+
+      setScanStatus(`Found ${emailsFound} emails. Enriching with company data...`)
       setActiveAgentId(AGENTS.ENRICHMENT_COORDINATOR.id)
 
       const enrichResult = await callAIAgent(
         JSON.stringify({
-          task: 'Enrich the following email scan data with structured call records and company research',
+          task: 'Enrich the following email scan data with structured call records and company research. Structure each record with all fields: call_id, company_name, call_datetime_ist, call_date, call_time, original_timezone, local_time, attendees, meeting_platform, meeting_link, ai_notes, key_topics, action_items, email_thread_summary, company_size_tier, employee_count, estimated_revenue, industry, priority, headquarters, company_website, is_new, enrichment_confidence.',
           scan_data: scanData,
         }),
         AGENTS.ENRICHMENT_COORDINATOR.id
       )
 
       if (enrichResult.success) {
-        const enrichedData = enrichResult?.response?.result
-        const calls = Array.isArray(enrichedData?.enriched_calls) ? enrichedData.enriched_calls : []
+        const enrichedRaw = enrichResult?.response?.result
+        // Try multiple paths for enriched_calls
+        let calls = Array.isArray(enrichedRaw?.enriched_calls) ? enrichedRaw.enriched_calls : []
+        if (calls.length === 0 && Array.isArray(enrichedRaw?.data?.enriched_calls)) {
+          calls = enrichedRaw.data.enriched_calls
+        }
+        if (calls.length === 0 && Array.isArray(enrichedRaw?.result?.enriched_calls)) {
+          calls = enrichedRaw.result.enriched_calls
+        }
+        // Fallback: if enrichment returned nothing but scanner had calls, use scanner data directly
+        if (calls.length === 0 && Array.isArray(demoCalls_raw) && demoCalls_raw.length > 0) {
+          calls = demoCalls_raw.map((dc: Record<string, unknown>, idx: number) => ({
+            call_id: (dc?.email_id as string) ?? `call_${idx}`,
+            company_name: (dc?.company_name as string) ?? 'Unknown',
+            call_datetime_ist: (dc?.call_datetime_ist as string) ?? '',
+            call_date: ((dc?.call_datetime_ist as string) ?? '').slice(0, 10),
+            call_time: ((dc?.call_datetime_ist as string) ?? '').slice(11, 16) + ' IST',
+            original_timezone: (dc?.original_timezone as string) ?? '',
+            local_time: (dc?.original_timezone as string) ?? '',
+            attendees: Array.isArray(dc?.attendees) ? dc.attendees : [],
+            meeting_platform: (dc?.meeting_platform as string) ?? '',
+            meeting_link: (dc?.meeting_link as string) ?? '',
+            ai_notes: (dc?.ai_notes as string) ?? '',
+            key_topics: [] as string[],
+            action_items: [] as string[],
+            email_thread_summary: (dc?.email_subject as string) ?? '',
+            company_size_tier: 'Unknown',
+            employee_count: 'Unknown',
+            estimated_revenue: 'Unknown',
+            industry: 'Unknown',
+            priority: 'Medium',
+            headquarters: '',
+            company_website: '',
+            is_new: (dc?.is_new as boolean) ?? true,
+            enrichment_confidence: 50,
+          }))
+        }
         setDemoCalls(calls)
-        const summary = enrichedData?.summary
+        const summary = enrichedRaw?.summary ?? enrichedRaw?.data?.summary
         if (summary) setCallSummary(summary)
         setLastScanTime(new Date().toISOString())
         setCountdown(3600)
         setScanStatus(`Scan complete: ${calls.length} demo calls found and enriched.`)
       } else {
-        setScanStatus('Enrichment failed: ' + (enrichResult.error ?? 'Unknown error'))
+        // Enrichment failed but scanner had data - use scanner data as fallback
+        if (Array.isArray(demoCalls_raw) && demoCalls_raw.length > 0) {
+          const fallbackCalls = demoCalls_raw.map((dc: Record<string, unknown>, idx: number) => ({
+            call_id: (dc?.email_id as string) ?? `call_${idx}`,
+            company_name: (dc?.company_name as string) ?? 'Unknown',
+            call_datetime_ist: (dc?.call_datetime_ist as string) ?? '',
+            call_date: ((dc?.call_datetime_ist as string) ?? '').slice(0, 10),
+            call_time: ((dc?.call_datetime_ist as string) ?? '').slice(11, 16) + ' IST',
+            original_timezone: (dc?.original_timezone as string) ?? '',
+            local_time: (dc?.original_timezone as string) ?? '',
+            attendees: Array.isArray(dc?.attendees) ? dc.attendees : [],
+            meeting_platform: (dc?.meeting_platform as string) ?? '',
+            meeting_link: (dc?.meeting_link as string) ?? '',
+            ai_notes: (dc?.ai_notes as string) ?? '',
+            key_topics: [] as string[],
+            action_items: [] as string[],
+            email_thread_summary: (dc?.email_subject as string) ?? '',
+            company_size_tier: 'Unknown',
+            employee_count: 'Unknown',
+            estimated_revenue: 'Unknown',
+            industry: 'Unknown',
+            priority: 'Medium',
+            headquarters: '',
+            company_website: '',
+            is_new: (dc?.is_new as boolean) ?? true,
+            enrichment_confidence: 30,
+          }))
+          setDemoCalls(fallbackCalls)
+          setLastScanTime(new Date().toISOString())
+          setCountdown(3600)
+          setScanStatus(`Scan complete: ${fallbackCalls.length} calls found (enrichment unavailable, showing basic data).`)
+        } else {
+          setScanStatus('Enrichment failed: ' + (enrichResult.error ?? 'Unknown error'))
+        }
       }
     } catch (err) {
       setScanStatus('Error: ' + (err instanceof Error ? err.message : 'Unknown error'))
