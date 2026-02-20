@@ -765,7 +765,7 @@ export default function Page() {
 
     try {
       const scanResult = await callAIAgent(
-        'Fetch my recent 50 emails from Gmail using GMAIL_FETCH_EMAILS with max_results 50 (no query filter). Then analyze every email to find any related to Lyzr GPT demos, LyzrGPT, Lizer GPT, demo calls, demo meetings, product demos, or scheduled calls. Include any email that mentions lyzr, demo, GPT, or scheduled meetings. Extract company name, meeting time, attendees, calendar info, meeting links, and AI notes for each match.',
+        'Call GMAIL_FETCH_EMAILS now to get my emails. After fetching, find any emails about Lyzr GPT demos, LyzrGPT, meetings, or demo calls. Extract details from each relevant email.',
         AGENTS.EMAIL_SCANNER.id
       )
 
